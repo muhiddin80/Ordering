@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, OnModuleInit } from "@nestjs/common";
 import { PostgresService } from "src/database/db";
 import { orderModelTable } from "./model/order.model";
-import { count } from "console";
 import { IOrder } from "./interfaces/order.interface";
 
 @Injectable()
@@ -17,7 +16,22 @@ export class OrderService implements OnModuleInit{
     }
 
     async getAllOrders():Promise<object> {
-        const order = await this.pg.query("SELECT * FROM orders;",[]);
+        const order = await this.pg.query(`
+            SELECT 
+              o.id, 
+              o.user_id, 
+              json_agg(
+                json_build_object(
+                  'id', p.id,
+                  'name', p.name,
+                  'price', p.price
+                )
+              ) AS products
+            FROM orders o
+            LEFT JOIN products p ON o.product = p.name
+            GROUP BY o.id, o.user_id;
+          `, []);
+          
         return {
             message:"Success!",
             count:order.length,
@@ -26,13 +40,20 @@ export class OrderService implements OnModuleInit{
     }
 
     async createOrder(payload:IOrder):Promise<object>{
-        const foundedOrder = await this.pg.query("SELECT * FROM orders WHERE user_id = []",[payload.user_id]);
-        if(foundedOrder){
-            throw new BadRequestException("This user already ordered!")
-        };
-        await this.pg.query("INSERT INTO orders (user_id) VALUES ($1)",[payload.user_id]);
+        await this.pg.query("INSERT INTO orders (user_id,product) VALUES ($1,$2)",[payload.user_id,payload.product]);
         return {
             message:"Successfully created!"
+        }
+    }
+
+    async deleteOrder(id:number):Promise<Object>{
+        const foundedOrder = await this.pg.query("SELECT * FROM orders WHERE id=$1",[id]);
+        if(foundedOrder.length==0){
+            throw new BadRequestException("This order does not exists!")
+        };
+        await this.pg.query("DELETE FROM orders WHERE id = $1",[id])
+        return {
+            message:"Successfully deleted!",
         }
     }
 }

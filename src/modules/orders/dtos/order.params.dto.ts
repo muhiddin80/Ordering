@@ -1,7 +1,7 @@
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import { IsPositive } from "class-validator";
 
-export class categoryParamsDuo {
+export class orderParamsDuo {
     @Type(()=>Number)
     @IsPositive()
     id:number;

@@ -1,9 +1,12 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseFilePipe, Post, Put, Query, UploadedFile, UseInterceptors } from "@nestjs/common";
 import { ProductService } from "./product.service";
 import { createProductDuo } from "./dtos/create-products";
 import { updateProductDto } from "./dtos/update-product.dto";
 import { productParamsDuo } from "./dtos/product.params";
 import { GetAllProductsQueryDuo } from "./dtos/product.params.dtos";
+import { CheckFileSizePipe } from "src/pipes/check.file.pipe";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { fileURLToPath } from "node:url";
 
 @Controller("products")
 export class productController{
@@ -15,13 +18,18 @@ export class productController{
     }
 
     @Post()
-    async createProduct(@Body() body:createProductDuo){
-        return await this.productService.createProduct(body);
+    @UseInterceptors(FileInterceptor('image'))
+    async createProduct(@Body() body:createProductDuo,
+    @UploadedFile(new CheckFileSizePipe(1200000)) image:Express.Multer.File){
+        return await this.productService.createProduct(body,image);
     }
 
     @Put(":id")
-    async updateProduct(@Body() body:updateProductDto,@Param() param:productParamsDuo){
-        return await this.productService.updateProduct(body,param?.id)
+    @UseInterceptors(FileInterceptor('image'))
+    async updateProduct(@Body() body:updateProductDto,@Param() param:productParamsDuo,
+    @UploadedFile(new CheckFileSizePipe(120000)) image:Express.Multer.File
+        ){
+        return await this.productService.updateProduct(body,param?.id,image)
     }
 
     @Delete(":id")

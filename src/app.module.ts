@@ -5,12 +5,13 @@ import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { HttpExceptionFilter } from './filter';
 import { UserModule } from './modules/users/user.module';
 import { LoggingInterceptor } from './interceptors/logging.interceptor';
+import { OrderModel } from './modules/orders/order.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
     isGlobal:true,
   }),
-  categoryModule,ProductModule,UserModule],
+  categoryModule,ProductModule,UserModule,OrderModel],
   providers:[
     {
       provide:APP_FILTER,

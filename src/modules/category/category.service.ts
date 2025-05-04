@@ -3,11 +3,14 @@ import { PostgresService } from "src/database/db";
 import { CategoryTableModel } from "./models";
 import { ICategory } from "./interface/category.interface";
 import { error } from "console";
+import { FsHelper } from "src/helpers/fs.helper";
 
 
 @Injectable()
 export class CategoryService implements OnModuleInit{
-    constructor(private readonly pg:PostgresService){}
+    constructor(private readonly pg:PostgresService,
+            private readonly fs:FsHelper
+    ){}
     
     async onModuleInit() {
         try {
@@ -56,11 +59,12 @@ export class CategoryService implements OnModuleInit{
             data:result
         }
     }
-    async createCategory(payload:ICategory){
+    async createCategory(payload:ICategory,image:Express.Multer.File){
         const foundedCategory = await this.pg.query("SELECT * FROM categories WHERE name = $1",[payload.name]);
         if(!(foundedCategory.length===0)){
             throw new BadRequestException("This category already exists!")
         };
+        let fileUrl = await this.fs.uploadFile(image);
         const category = await this.pg.query("INSERT INTO categories (name,category_id) VALUES ($1,$2)",
         [payload.name,payload.category_id])    
         return {

@@ -6,10 +6,12 @@ export class CheckFileSizePipe implements PipeTransform {
     constructor(limit:number){
         this.limit=limit;
     };
-    transform(value: any, metadata: ArgumentMetadata) {
+    transform(value: Express.Multer.File, metadata: ArgumentMetadata) {
+        // console.log("chekc",value)
         if(value.size>this.limit)
             throw new BadRequestException(
             "Bu fayl juda katta"
         )
+        return value;
     };
 };

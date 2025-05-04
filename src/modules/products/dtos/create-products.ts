@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsInt, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 export class createProductDuo {
@@ -5,11 +6,11 @@ export class createProductDuo {
     @MinLength(4)
     name:string;
 
+    @Type(()=>Number)
     @IsPositive()
-    @IsInt()
     price:number;
 
+    @Type(()=>Number)
     @IsPositive()
-    @IsInt()
     category_id:number;
 }

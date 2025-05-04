@@ -1,3 +1,4 @@
+import { Type } from "class-transformer";
 import { IsInt, IsPositive, IsString, MinLength } from "class-validator";
 
 export class updateProductDto {
@@ -5,7 +6,7 @@ export class updateProductDto {
     @MinLength(4)
     name:string;
 
+    @Type(()=>Number)
     @IsPositive()
-    @IsInt()
     price:number;
 }
