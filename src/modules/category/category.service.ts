@@ -2,7 +2,6 @@ import { BadRequestException, Injectable, OnModuleInit } from "@nestjs/common";
 import { PostgresService } from "src/database/db";
 import { CategoryTableModel } from "./models";
 import { ICategory } from "./interface/category.interface";
-import { error } from "console";
 import { FsHelper } from "src/helpers/fs.helper";
 
 
@@ -29,10 +28,12 @@ export class CategoryService implements OnModuleInit{
         const result = await this.pg.query(`SELECT 
             p.id AS ca_id,
             p.name AS ca_name ,
+            p.image AS cs_image,
             json_agg(
               json_build_object(
                 'id', c.id,
                 'name', c.name,
+                'image',c.image,
                 'products', (
                   SELECT json_agg(
                            json_build_object(
@@ -65,8 +66,9 @@ export class CategoryService implements OnModuleInit{
             throw new BadRequestException("This category already exists!")
         };
         let fileUrl = await this.fs.uploadFile(image);
-        const category = await this.pg.query("INSERT INTO categories (name,category_id) VALUES ($1,$2)",
-        [payload.name,payload.category_id])    
+
+        const category = await this.pg.query("INSERT INTO categories (name,category_id,image) VALUES ($1,$2,$3)",
+        [payload.name,payload.category_id,fileUrl.fileUrl.split('\\').at(-1)])    
         return {
             message:'success',
             data:category

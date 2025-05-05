@@ -25,6 +25,40 @@ export class UserService implements OnModuleInit {
         };
     }
 
+    async getUserOrders(id:number){
+        const userOrder = await this.pg.query(`SELECT 
+                u.id AS customer_id,
+                u.name AS customer_name,
+                json_agg(
+                    json_build_object(
+                        'id', o.id,
+                        'products', (
+                            SELECT json_agg(
+                                json_build_object(
+                                    'id', pr.id,
+                                    'name', pr.name,
+                                    'price', pr.price
+                                )
+                            )
+                            FROM products pr
+                            WHERE pr.name = o.product
+                        )
+                    )
+                ) AS orders
+            FROM users u
+            LEFT JOIN orders o ON o.user_id = u.id
+            WHERE u.id = $1
+            GROUP BY u.id, u.name;
+        `, [id]);
+        
+        return { userOrder };
+        
+            return {
+                message:"Success",
+                data:userOrder
+            }
+    }
+
     async registerUser(payload: IUser) {
         const foundeduser = await this.pg.query("SELECT * FROM users WHERE email=$1",[payload.email]);
         if(foundeduser.length!=0){

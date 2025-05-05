@@ -14,6 +14,11 @@ export class UserController {
         return await this.userService.getAllUsers();
     }
 
+    @Get(":id")
+    async getUserOrder(@Param() param:userParamsDuo){
+        return await this.userService.getUserOrders(param?.id)
+    }
+
     @Post("register")
     async registerUser(@Body() body: RegisteruserDuo) {
         return await this.userService.registerUser(body);

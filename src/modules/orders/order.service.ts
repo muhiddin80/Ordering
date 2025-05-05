@@ -40,6 +40,10 @@ export class OrderService implements OnModuleInit{
     }
 
     async createOrder(payload:IOrder):Promise<object>{
+        let foundedProduct = await this.pg.query("SELECT FROM products WHERE name = $1;",[payload.product]);
+        if(foundedProduct.length == 0){
+            throw new BadRequestException("This product does not exists!")
+        }
         await this.pg.query("INSERT INTO orders (user_id,product) VALUES ($1,$2)",[payload.user_id,payload.product]);
         return {
             message:"Successfully created!"
