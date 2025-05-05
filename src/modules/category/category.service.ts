@@ -68,7 +68,7 @@ export class CategoryService implements OnModuleInit{
         let fileUrl = await this.fs.uploadFile(image);
 
         const category = await this.pg.query("INSERT INTO categories (name,category_id,image) VALUES ($1,$2,$3)",
-        [payload.name,payload.category_id,fileUrl.fileUrl.split('\\').at(-1)])    
+        [payload.name,payload.category_id,fileUrl.split('\\').at(-1)])    
         return {
             message:'success',
             data:category

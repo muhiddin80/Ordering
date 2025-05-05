@@ -7,7 +7,7 @@ import * as fsPromises from "node:fs/promises"
 export class FsHelper {
     async uploadFile(file:Express.Multer.File){
         const fileHolder = path.join(process.cwd(),"uploads")
-        // console.log("hello",file)
+        console.log("hello",file)
 
         if(!fs.existsSync(fileHolder)){
             fs.mkdirSync(fileHolder,{recursive:true})
@@ -17,16 +17,13 @@ export class FsHelper {
 
         await fsPromises.writeFile(path.join(fileHolder,fileName),file.buffer);
 
-        return {
-            message:"success",
-            fileUrl:path.join(fileHolder,fileName)
-        }
+        return path.join("uploads",fileName)
     };
 
     async deleteFile(name:string){
-        const fileHolder = path.join(process.cwd(),"uploads");
+        const fileHolder = path.join(process.cwd(),name);
 
-        await fsPromises.unlink(path.join(fileHolder,name));
+        await fsPromises.unlink(fileHolder);
         return {
             message:"success"
         }
